@@ -1,0 +1,105 @@
+body,
+html {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+}
+#container {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+#rotation-message {
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 1.2em;
+	background: rgba(0, 0, 0, 0.7);
+	padding: 1em;
+	border-radius: 8px;
+}
+.show-rotation-message #rotation-message {
+	display: block;
+}
+#settingsWrapper {
+	position: absolute;
+	top: 0.5rem;
+	left: 0.5rem;
+	right: 0.5rem;
+	z-index: 9990;
+}
+#controls {
+	display: flex;
+	flex-direction: column;
+}
+#audioPlayer {
+	width: 100%;
+}
+button {
+	margin: 0 10px;
+	padding: 0.5em 1em;
+	font-size: 1em;
+}
+
+#assDupCheckDialog {
+	position: absolute;
+	z-index: 9999;
+	border: 1px solid #ccc;
+	padding: 10px;
+	overflow: auto;
+	max-width: 100%;
+	max-height: 100%;
+	background-color: rgba(0, 0, 0, 0.7);
+}
+.karaoke-wrapper {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+.karaoke-line {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+.karaoke-char {
+	opacity: 0;
+	font-family: Arial, sans-serif;
+	color: #ffffff;
+	white-space: pre;
+	transform: scale(0.5);
+	display: inline-block;
+	/* transition: all 0.3s ease; */
+	transition: none; /* 일반 상태에선 트랜지션 없음 */
+	will-change: transform, opacity; /* 브라우저에 최적화 힌트 제공 */
+}
+
+@keyframes karaoke-fade-in {
+	from {
+		opacity: 0;
+		transform: scale(0.5);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+		color:var(--highlight-color);
+	}
+}
+
+.karaoke-char.animate {
+	opacity: 1;
+	transform: scale(1);
+	animation-fill-mode: forwards; /* 애니메이션 후 상태 유지 */
+	animation-name: karaoke-fade-in;
+	animation-duration: 300ms; /* 적절한 기간으로 설정 */
+	animation-timing-function: ease-out;
+}
