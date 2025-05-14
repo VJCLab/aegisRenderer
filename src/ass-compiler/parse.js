@@ -240,5 +240,8 @@ function parse(text, onParseProgress = d => { }, onParseComplete = d => { }) {
     onParseComplete({ type: 'done', result: tree });
     return tree;
 }
-
+self.onmessage = (e) => {
+    const text = e.data;
+    parse(text, self.postMessage, self.postMessage);
+};
 export default parse;

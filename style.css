@@ -36,6 +36,10 @@ html {
 	flex-direction: column;
 }
 #audioPlayer {
+	position: absolute;
+	bottom: 0;
+	opacity: 1;
+	z-index: 9999;
 	width: 100%;
 }
 button {

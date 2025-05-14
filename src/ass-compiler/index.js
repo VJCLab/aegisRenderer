@@ -11,7 +11,7 @@ class WorkerSpown extends EventTarget {
             this.terminate();
 
             // 새 워커 생성
-            this.worker = new Worker(new URL('./parse.worker.js', import.meta.url), {
+            this.worker = new Worker(new URL('./parse.js', import.meta.url), {
                 type: 'module'
             });
             // 워커로부터의 응답을 기다리는 Promise 생성 및 즉시 await
@@ -55,4 +55,4 @@ class WorkerSpown extends EventTarget {
     }
 }
 
-export const parse = new WorkerSpown();
+export default new WorkerSpown();

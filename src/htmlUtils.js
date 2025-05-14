@@ -228,19 +228,6 @@ function prepareScenes(container, lyrics, sharedTextGroup) {
     }
     return scenes;
 }
-function genOffsetCtrls() {
-    // 오디오 및 자막 오프셋 컨트롤
-    const w = document.createElement('div');
-    w.className = 'offset-controls';
-    w.innerHTML = `
-        <label>Audio Offset (ms): <input type="number" id="audioOffset" value="0" /></label>
-        <label>Subtitle Offset (ms): <input type="number" id="subOffset" value="0" /></label>
-    `;
-    w.style.position = "absolute";
-    w.style.top = "10px";
-    w.style.zIndex = 10;
-    return w;
-}
 
 /**
  * Aegisub (&HAABBGGRR) → CSS Hex/RGBA 변환
@@ -306,8 +293,6 @@ class GUI {
     static onUpdateScenesLetter = onUpdateScenesLetter;
     static onUpdateAudioTime = onUpdateAudioTime;
     static prepareScenes = prepareScenes;
-    static genOffsetCtrls = genOffsetCtrls;
     static parseAegisubColor = parseAegisubColor;
-    static downloadFile = downloadFile;
 }
 export { loadAudio, parseAegisubColor, downloadFile, GUI };

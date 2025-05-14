@@ -1,12 +1,13 @@
 // import { parse as parseASS, stringify as stringifyASS, compile as compileASS, decompile as decompileASS } from 'ass-compiler';
-import { parse as parseASS } from './ass-compiler/index.js';
+import { default as parseASS } from './ass-compiler/index.js';
 import genCandyMap from './genCandyMap.js';
 import genCandySelOpts from './genCandySelOpts.js';
-import { GUI, loadAudio, parseAegisubColor } from './htmlUtils.js';
-import lrc2ass from './lrc2ass/index.js';
+import { downloadFile, GUI, loadAudio, parseAegisubColor } from './htmlUtils.js';
+import { default as lrc2ASS } from './lrc2ass/index.js';
 import showASSDupCheck from './showASSDupCheck.js';
 /** @typedef {import('./ass-compiler/type.js').ASSParseResult} ASSParseResult */
-/** @typedef {import('./lrc2ass/parser.js').ParserResult} LRCParserResult */
+/** @typedef {import('./lrc2ass/type.js').ParserResult} LRCParserResult */
+
 function finalizeSelectedLines(candidateMap, styleDB, selectedIds = []) {
     const resultMap = new Map();
     const selectableIDs = selectedIds;
@@ -44,28 +45,12 @@ async function subtitleDLRequest(convertRawData, subOffset = 0) {
         line.time = line.time + subOffset;
     });
     let { assContent, lrcData } = await lrc2ass(convertRawData);
-    const genBlobUrl = URL.createObjectURL(new Blob([assContent], { type: "text/plain;charset=utf-8" }));
-    const a = document.createElement('a');
-    a.href = genBlobUrl;
-    a.download = fileName;
-    a.style.display = 'none';
+    downloadFile(assContent, fileName, "text/plain;charset=utf-8");
 
-    document.body.appendChild(a);
-    a.click();
-
-    setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(genBlobUrl);
-    }, 100);
     if (lrcData) convertRawData = lrcData;
 }
 async function initPage(onRaf = () => { }) {
     const container = document.getElementById("container");
-
-    // 오디오 및 자막 오프셋 컨트롤
-    // const controlDiv = GUI.genOffsetCtrls();
-    // container.appendChild(controlDiv);
-
     let audioOffset = 0;
     let subOffset = 0;
 
@@ -144,16 +129,29 @@ async function initPage(onRaf = () => { }) {
 
         // convert lrc to ass file format. when if file extension is lrc.
         if (ext !== 'ass' && ext === "lrc") {
-            let { assContent, lrcData } = await lrc2ass(text, ev => console.log(ev));
+            lrc2ASS.addEventListener('progress', (e) => {
+                const phase = e.phase;
+                const rawPct = (e.loaded / e.total) * 100;
+                // 소수 둘째 자리에서 버림
+                const dispPct = (Math.floor(rawPct * 100) / 100).toFixed(2);
+                const msg = `LRC ${phase} Progress: ${dispPct}% (${e.loaded}/${e.total})`;
+                console.log(msg);
+            });
+
+            let { assContent, lrcData } = await lrc2ASS.convert(text, ev => console.log(ev));
             if (assContent) text = assContent;
-            if (lrcData) {convertRawData = lrcData;
+            if (lrcData) {
+                convertRawData = lrcData;
                 // for download.
-                lrcData.fileName = e.target.files[0].name; 
+                lrcData.fileName = e.target.files[0].name;
             }
             if (dlBtn && dlBtn.updateSuccessVisual) {
                 dlBtn.disabled = false;
                 dlBtn.updateSuccessVisual();
             }
+            console.log(`========= LRC Convert Result =========
+LRC 파싱 소요시간:${convertRawData.PERFORMANCE_PRE.diff.toFixed(2)}ms
+LRC -> ASS 변환 소요시간:${convertRawData.PERFORMANCE_AFTER.diff.toFixed(2)}ms`);
         }
 
         /** @type {ASSParseResult} */
@@ -185,7 +183,15 @@ async function initPage(onRaf = () => { }) {
         mainCycle();
     });
 
-    return { container, onReset, onAudioFileChange, onSubTitleChange, onAudioOffsetChange, onAssOffsetChange, onSubDLReq };
+    return {
+        container,
+        onReset,
+        onAudioFileChange,
+        onSubTitleChange,
+        onAudioOffsetChange,
+        onAssOffsetChange,
+        onSubDLReq
+    };
 }
 await new Promise(r => window.onload = () => r());
 initPage(({ audioElem, scenes, audioStart, audioOffset, subOffset, sharedTextGroup, currentScenes }) => {
