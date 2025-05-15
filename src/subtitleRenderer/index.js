@@ -1,40 +1,36 @@
-async function loadAudio(audioElem, urlOrFile) {
-    audioElem.src = typeof urlOrFile === "string" ? urlOrFile : URL.createObjectURL(urlOrFile);
-    audioElem.load();
-    return audioElem;
-}
-
-function createCSSTextGroup() {
-    const wrapper = document.createElement("div");
-    wrapper.className = "karaoke-wrapper";
-
-    return {
-        object: wrapper,
-        lines: [], // Will store all line elements
-        prevLines: [], // Store previous segments here
-        addLine: function () {
-            const line = document.createElement("div");
-            line.className = "karaoke-line";
-            this.object.appendChild(line);
-            this.lines.push(line);
-            return line;
-        },
-        ensureLines: function (count) {
-            // Make sure we have at least 'count' lines
-            for (let i = this.lines.length; i < count; i++) {
-                this.addLine();
-            }
-            return this.lines;
-        }
-    };
-}
-
 function areSegmentsEqual(segs1, segs2) {
     if (!segs1 || !segs2 || segs1.length !== segs2.length) return false;
     return segs1.every((seg, i) =>
         seg.char === segs2[i].char &&
         seg.duration === segs2[i].duration
     );
+}
+
+function arraysEqual(a, b) {
+    if (!a || !b || a.length !== b.length) return false;
+    if (a.length !== b.length) return false;
+
+    return a.every((aItem, i) => aItem === b[i]);
+}
+
+function prepareScenes(container, lyrics, sharedTextGroup) {
+    container.appendChild(sharedTextGroup.object);
+    const scenes = [];
+    for (let i = 0; i < lyrics.length; i++) {
+        const block = lyrics[i];
+        let segments = block.lines.map(l => {
+            return l.segments.map(s => {
+                s.style = l.style;
+                return s;
+            })
+        })
+        scenes.push({
+            start: block.start,
+            end: block.end,
+            segments,
+        });
+    }
+    return scenes;
 }
 
 function updateSharedTextGroup(sharedTextGroup, newSceneSegments) {
@@ -160,16 +156,10 @@ function onUpdateScenesLetter(sharedTextGroup, activeScenes, now, subOffset) {
         lineOffset += scene.segments.length;
     }
 }
-function arraysEqual(a, b) {
-    if (!a || !b || a.length !== b.length) return false;
-    if (a.length !== b.length) return false;
 
-    return a.every((aItem, i) => aItem === b[i]);
-}
-
-function onUpdateAudioTime(audioElem, audioStart, scenes, audioOffset, subOffset, sharedTextGroup, currentScenes) {
-    if (!audioElem) return;
-    const now = audioElem.currentTime * 1000 - audioStart + audioOffset;
+function onUpdateMediaTime(mediaElem, mediaStart, scenes, mediaOffset, subOffset, sharedTextGroup, currentScenes) {
+    if (!mediaElem) return;
+    const now = mediaElem.currentTime * 1000 - mediaStart + mediaOffset;
 
     // Instead of single activeScene, now we track multiple active scenes
     let activeScenes = [];
@@ -209,90 +199,9 @@ function onUpdateAudioTime(audioElem, audioStart, scenes, audioOffset, subOffset
 
     return activeScenes; // Return current active scenes to update state
 }
-function prepareScenes(container, lyrics, sharedTextGroup) {
-    container.appendChild(sharedTextGroup.object);
-    const scenes = [];
-    for (let i = 0; i < lyrics.length; i++) {
-        const block = lyrics[i];
-        let segments = block.lines.map(l => {
-            return l.segments.map(s => {
-                s.style = l.style;
-                return s;
-            })
-        })
-        scenes.push({
-            start: block.start,
-            end: block.end,
-            segments,
-        });
-    }
-    return scenes;
-}
-
-/**
- * Aegisub (&HAABBGGRR) → CSS Hex/RGBA 변환
- * @param {string} aegisubColor - 예: "&H006E6E72"
- * @returns {{ hex: string, rgba: string }} 
- *    hex: "#RRGGBB"
- *    rgba: "rgba(r, g, b, a)"
- */
-function parseAegisubColor(aegisubColor) {
-    // 1) "&H" 접두사 제거, 대문자·0패딩 보장
-    let hex8 = aegisubColor
-        .toUpperCase()
-        .replace(/^&H/, "")
-        .padStart(8, "0");
-
-    // 2) ASS 형식은 AABBGGRR
-    const a = hex8.slice(0, 2);
-    const b = hex8.slice(2, 4);
-    const g = hex8.slice(4, 6);
-    const r = hex8.slice(6, 8);
-
-    // 3) 16진 → 10진
-    const ai = parseInt(a, 16);
-    const bi = parseInt(b, 16);
-    const gi = parseInt(g, 16);
-    const ri = parseInt(r, 16);
-
-    // 4) CSS용 #RRGGBB, rgba()
-    const hex = `#${r}${g}${b}`;
-    const alpha = (ai / 255).toFixed(3).replace(/\.?0+$/, ""); // 불필요한 0 제거
-    const rgba = `rgba(${ri}, ${gi}, ${bi}, ${alpha})`;
-
-    return { hex, rgba };
-}
-
-/**
- * 브라우저에서 파일을 다운로드하는 함수
- * @param {string} content - 파일 내용
- * @param {string} fileName - 파일 이름
- * @param {string} contentType - 파일 타입
- */
-function downloadFile(content, fileName, contentType = 'text/plain') {
-    const blob = new Blob([content], { type: contentType });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.style.display = 'none';
-
-    document.body.appendChild(a);
-    a.click();
-
-    setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }, 100);
-}
-
-class GUI {
-    static createCSSTextGroup = createCSSTextGroup;
-    static updateSharedTextGroup = updateSharedTextGroup;
-    static onUpdateScenesLetter = onUpdateScenesLetter;
-    static onUpdateAudioTime = onUpdateAudioTime;
-    static prepareScenes = prepareScenes;
-    static parseAegisubColor = parseAegisubColor;
-}
-export { loadAudio, parseAegisubColor, downloadFile, GUI };
+export {
+    prepareScenes,
+    updateSharedTextGroup,
+    onUpdateScenesLetter,
+    onUpdateMediaTime
+};

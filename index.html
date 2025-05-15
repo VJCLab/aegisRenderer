@@ -19,21 +19,20 @@
 	<body class="bg-black">
 		<div id="container"></div>
 		<div id="rotation-message">화면을 가로 모드로 회전해주세요.</div>
-		<details id="settingsDialog" class="p-3 z-3 w-100 position-absolute">
+		<details id="settingsDialog" class="p-3">
 			<summary class="h5 mb-3">설정</summary>
 			<div id="controls" class="mt-3">
-				<!-- 오디오 오프셋 설정 -->
 				<details class="mb-4">
-					<summary>오디오 설정</summary>
+					<summary>미디어 설정</summary>
 					<div class="row g-3 mb-3 align-items-end">
 						<div class="col-md-6">
-							<label for="audioOffset" class="form-label"
-								>오디오 오프셋 (ms)</label
+							<label for="mediaOffset" class="form-label"
+								>미디어 오프셋 (ms)</label
 							>
 							<div class="input-group">
 								<input
 									type="number"
-									id="audioOffset"
+									id="mediaOffset"
 									class="form-control"
 									value="0"
 								/>
@@ -42,11 +41,11 @@
 								>
 									<input
 										type="checkbox"
-										id="audioOffIsNeg"
+										id="mediaOffIsNeg"
 										class="form-check-input"
 									/>
 									<label
-										for="audioOffIsNeg"
+										for="mediaOffIsNeg"
 										class="form-check-label ms-1"
 										>음수 여부</label
 									>
@@ -108,16 +107,16 @@
 				<!-- 파일 업로드 영역 -->
 				<div class="mb-4">
 					<div class="mb-3">
-						<label for="audioFile" class="form-label"
-							>오디오 파일</label
+						<label for="mediaFile" class="form-label"
+							>미디어 파일</label
 						>
 						<input
 							type="file"
 							class="form-control"
-							id="audioFile"
-							aria-describedby="audioFileDesc"
-							name="audioFile"
-							accept="audio/*"
+							id="mediaFile"
+							aria-describedby="mediaFileDesc"
+							name="mediaFile"
+							accept="audio/*, video/*"
 						/>
 					</div>
 
@@ -160,7 +159,6 @@
 				</div>
 			</div>
 		</details>
-		<!-- 오디오 플레이어 -->
-		<audio id="audioPlayer" controls></audio>
+		<video id="mediaPlayer" controls></video>
 	</body>
 </html>
