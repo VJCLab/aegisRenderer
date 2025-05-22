@@ -97,6 +97,11 @@ function setupEventListeners(pageObj) {
         document.getElementById('mediaOffset').dispatchEvent(new Event('input'));
     });
     document.getElementById('convertedSubDL').addEventListener('click', pageObj.onSubDLReq);
+
+    // mediaControlHeight (input)
+    document.getElementById('mediaControlHeight').addEventListener('input', ev => {
+        document.getElementById('container').style.setProperty('--media-control-height', ev.target.value + 'rem');
+    });
 }
 
 export { initPage, setupEventListeners };

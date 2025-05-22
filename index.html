@@ -57,7 +57,7 @@
 
 				<!-- 자막 오프셋 설정 -->
 
-				<details class="mb-2">
+				<details class="mb-4">
 					<summary>자막 설정</summary>
 					<div class="row g-3 mb-3 align-items-end">
 						<div class="col-md-6">
@@ -101,9 +101,29 @@
 								max="100"
 							/>
 						</div>
+						<div class="col-md-4">
+							<label for="mediaControlHeight" class="form-label"
+								>하단 위치 조절</label
+							>
+							<div class="input-group gap-4">
+								<input
+									type="number"
+									id="mediaControlHeight"
+									class="form-control"
+									value="3.5"
+									min="3.5"
+									step="0.25"
+									max="100"
+								/>
+								<span>(rem)</span>
+							</div>
+							<p>
+								(미디어 컨트롤러가 클릭이 안되면 이를
+								조종하세요.)
+							</p>
+						</div>
 					</div>
 				</details>
-
 				<!-- 파일 업로드 영역 -->
 				<div class="mb-4">
 					<div class="mb-3">
