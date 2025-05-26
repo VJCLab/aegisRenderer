@@ -1,3 +1,5 @@
+import {default as lrc2ASS } from "../lrc2ass/index.js";
+
 /**
  * 브라우저에서 파일을 다운로드하는 함수
  * @param {string} content - 파일 내용
