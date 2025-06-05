@@ -25,10 +25,12 @@ async function initPage(onRaf = () => { }) {
     let currentScenes = null;
     /** @type {?LRCParserResult} */
     let convertedRawData = null;
+    let showKaraokeBgLine = true;
+    const onToggleBgKaraokeLine = (e) => showKaraokeBgLine = e.target.checked;
     const mainCycle = () => {
         if (!canRender) return;
-        onRaf({ mediaElem, scenes, mediaStart, mediaOffset, subOffset, sharedTextGroup, currentScenes });
-        currentScenes = onUpdateMediaTime(mediaElem, mediaStart, scenes, mediaOffset, subOffset, sharedTextGroup, currentScenes);
+        onRaf({ mediaElem, scenes, mediaStart, mediaOffset, subOffset, sharedTextGroup, currentScenes, showKaraokeBgLine });
+        currentScenes = onUpdateMediaTime(mediaElem, mediaStart, scenes, mediaOffset, subOffset, sharedTextGroup, currentScenes, showKaraokeBgLine);
         requestAnimationFrame(mainCycle);
     };
 
@@ -67,7 +69,8 @@ async function initPage(onRaf = () => { }) {
         onSubTitleChange,
         onmediaOffsetChange: onMediaOffsetChange,
         onAssOffsetChange,
-        onSubDLReq
+        onSubDLReq,
+        onToggleBgKaraokeLine
     };
 }
 
@@ -76,6 +79,7 @@ function setupEventListeners(pageObj) {
     document.getElementById("subFile").addEventListener("change", pageObj.onSubTitleChange);
     document.getElementById('mediaOffset').addEventListener('input', pageObj.onMediaOffsetChange);
     document.getElementById('subOffset').addEventListener('input', pageObj.onAssOffsetChange);
+    document.getElementById('toggleBgKaraokeLine').addEventListener('change', pageObj.onToggleBgKaraokeLine);
     document.getElementById('fontSize').addEventListener('input', ev => {
         const fontSize = ev.target.value;
         document.getElementById('container').style.fontSize = fontSize + 'px';

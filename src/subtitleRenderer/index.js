@@ -33,7 +33,7 @@ function prepareScenes(container, lyrics, sharedTextGroup) {
     return scenes;
 }
 
-function updateSharedTextGroup(sharedTextGroup, newSceneSegments) {
+function updateSharedTextGroup(sharedTextGroup, newSceneSegments, showKaraokeBgLine) {
     // 기존 라인을 모두 정리하고 새로운 라인 배열을 생성
     const newLines = [];
 
@@ -65,6 +65,15 @@ function updateSharedTextGroup(sharedTextGroup, newSceneSegments) {
             } else {
                 // 다른 경우 DOM 재구성
                 lineEl.innerHTML = "";
+
+                // 배경 텍스트 렌더링 (showBackground가 false가 아닐 때만)
+                if (showKaraokeBgLine !== false) {
+                    const backgroundLineEl = document.createElement("span");
+                    backgroundLineEl.className = "karaoke-background-line";
+                    backgroundLineEl.textContent = segs.map(s => s.char).join('');
+                    lineEl.appendChild(backgroundLineEl);
+                }
+                // 글자 하나씩 추가.
                 for (let j = 0; j < segs.length; j++) {
                     const seg = segs[j];
                     const span = document.createElement("span");
@@ -95,7 +104,7 @@ function updateSharedTextGroup(sharedTextGroup, newSceneSegments) {
     // 이전 세그먼트 저장
     sharedTextGroup.prevLines = newSceneSegments ? [...newSceneSegments] : [];
 }
-function onUpdateScenesLetter(sharedTextGroup, activeScenes, now, subOffset) {
+function onUpdateScenesLetter(sharedTextGroup, activeScenes, now, subOffset, showKaraokeBgLine) {
     if (!activeScenes || !sharedTextGroup) return;
 
     let lineOffset = 0;
@@ -118,10 +127,22 @@ function onUpdateScenesLetter(sharedTextGroup, activeScenes, now, subOffset) {
                 const seg = lineSegs[i];
                 const nonHighlightedCol = seg.style?.SecondaryColour?.hex ?? "#ffffff";
                 const highlightedCol = seg.style?.PrimaryColour?.hex;
-                /** @type {HTMLSpanElement} */
-                const el = lineEl.children[i];
-                if (!el) continue;
 
+                // 배경 라인에 대한 스타일 적용 (showKaraokeBgLine이 true일 때)
+                if (showKaraokeBgLine !== false) {
+                    const bgEl = lineEl.querySelector(`.karaoke-background-line`);
+                    if (bgEl) {
+                        bgEl.style.setProperty('--nonHighlight-color', nonHighlightedCol);
+                        bgEl.style.color = nonHighlightedCol;
+                    }
+                }
+
+
+                // karaoke-char 클래스를 가진 요소들만 선택
+                /** @type {HTMLSpanElement} */
+                const el = lineEl.querySelectorAll('.karaoke-char')[i];
+
+                if (!el) continue;
                 if (highlightedCol) el.style.setProperty('--highlight-color', highlightedCol);
                 if (nonHighlightedCol) {
                     el.style.setProperty('--nonHighlight-color', nonHighlightedCol);
@@ -157,7 +178,7 @@ function onUpdateScenesLetter(sharedTextGroup, activeScenes, now, subOffset) {
     }
 }
 
-function onUpdateMediaTime(mediaElem, mediaStart, scenes, mediaOffset, subOffset, sharedTextGroup, currentScenes) {
+function onUpdateMediaTime(mediaElem, mediaStart, scenes, mediaOffset, subOffset, sharedTextGroup, currentScenes, showKaraokeBgLine) {
     if (!mediaElem) return;
     const now = mediaElem.currentTime * 1000 - mediaStart + mediaOffset;
 
@@ -191,11 +212,11 @@ function onUpdateMediaTime(mediaElem, mediaStart, scenes, mediaOffset, subOffset
         }
 
         // Update the text display with all active lines
-        updateSharedTextGroup(sharedTextGroup, allSegments);
+        updateSharedTextGroup(sharedTextGroup, allSegments, showKaraokeBgLine);
     }
 
     // Update letter animations for all active scenes
-    onUpdateScenesLetter(sharedTextGroup, activeScenes, now, subOffset);
+    onUpdateScenesLetter(sharedTextGroup, activeScenes, now, subOffset, showKaraokeBgLine);
 
     return activeScenes; // Return current active scenes to update state
 }

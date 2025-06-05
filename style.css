@@ -76,6 +76,7 @@ button {
 	align-items: center;
 	justify-content: center;
 	flex-wrap: wrap;
+	position: relative;
 }
 .karaoke-char {
 	opacity: 0;
@@ -108,4 +109,16 @@ button {
 	animation-name: karaoke-fade-in;
 	animation-duration: 300ms; /* 적절한 기간으로 설정 */
 	animation-timing-function: ease-out;
+}
+.karaoke-background-line{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: -1;
+	font-family: Arial, sans-serif;
+	color: #ffffff;
+	white-space: pre;
+	display: inline-block;
 }
