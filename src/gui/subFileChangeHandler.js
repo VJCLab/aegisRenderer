@@ -28,7 +28,7 @@ async function subFileChangeHandler(e, {
     if (!e.target.files[0]) return;
 
     // first, i need to get file extension
-    const ext = e.target.files[0].name.split('.').pop();
+    const ext = e.target.files[0].name.split('.').pop().toLowerCase();
     let text = await e.target.files[0].text();
     // check file extension
     if (!(ext === 'ass' || ext === 'lrc')) {

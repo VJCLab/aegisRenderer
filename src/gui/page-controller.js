@@ -19,7 +19,7 @@ async function initPage(onRaf = () => { }) {
     const sharedTextGroup = createCSSTextGroup();
 
     let mediaStart = null;
-    let mediaElem = document.querySelector("#mediaPlayer");
+    const mediaElem = document.querySelector("#mediaPlayer");
     let scenes = [];
     let canRender = false;
     let currentScenes = null;
@@ -27,10 +27,23 @@ async function initPage(onRaf = () => { }) {
     let convertedRawData = null;
     let showKaraokeBgLine = true;
     const onToggleBgKaraokeLine = (e) => showKaraokeBgLine = e.target.checked;
+
+    let animationMode = "scale"; // 기본값
+
+    // 드롭다운 이벤트 핸들러
+    const onAnimationModeChange = (e) => {
+        animationMode = e.target.value;
+    };
+
+    let posterPosition = "50% 1em";
+    const onPosterPosChange = (e) => {
+        posterPosition = e.target.value;
+        mediaElem.style.objectPosition = posterPosition;
+    }
     const mainCycle = () => {
         if (!canRender) return;
-        onRaf({ mediaElem, scenes, mediaStart, mediaOffset, subOffset, sharedTextGroup, currentScenes, showKaraokeBgLine });
-        currentScenes = onUpdateMediaTime(mediaElem, mediaStart, scenes, mediaOffset, subOffset, sharedTextGroup, currentScenes, showKaraokeBgLine);
+        onRaf({ mediaElem, scenes, mediaStart, mediaOffset, subOffset, sharedTextGroup, currentScenes, showKaraokeBgLine, animationMode });
+        currentScenes = onUpdateMediaTime(mediaElem, mediaStart, scenes, mediaOffset, subOffset, sharedTextGroup, currentScenes, showKaraokeBgLine, animationMode);
         requestAnimationFrame(mainCycle);
     };
 
@@ -41,7 +54,7 @@ async function initPage(onRaf = () => { }) {
     const onMediaFileChange = e => {
         mediaStart = null;
         const f = e.target.files?.[0];
-        loadMedia(mediaElem, f, (mediaElem) => mediaElem = mediaElem.currentTime * 1000)
+        loadMedia(mediaElem, f, (mediaElem) => mediaElem = mediaElem.currentTime * 1000, posterPosition)
     };
 
     const onSubDLReq = () => dlHandler(convertedRawData, subOffset);
@@ -67,45 +80,74 @@ async function initPage(onRaf = () => { }) {
         onReset,
         onMediaFileChange,
         onSubTitleChange,
-        onmediaOffsetChange: onMediaOffsetChange,
+        onMediaOffsetChange,
         onAssOffsetChange,
         onSubDLReq,
-        onToggleBgKaraokeLine
+        onToggleBgKaraokeLine,
+        onAnimationModeChange,
+        onPosterPosChange
     };
 }
 
 function setupEventListeners(pageObj) {
-    document.getElementById("mediaFile").addEventListener("change", pageObj.onMediaFileChange);
-    document.getElementById("subFile").addEventListener("change", pageObj.onSubTitleChange);
-    document.getElementById('mediaOffset').addEventListener('input', pageObj.onMediaOffsetChange);
-    document.getElementById('subOffset').addEventListener('input', pageObj.onAssOffsetChange);
-    document.getElementById('toggleBgKaraokeLine').addEventListener('change', pageObj.onToggleBgKaraokeLine);
-    document.getElementById('fontSize').addEventListener('input', ev => {
-        const fontSize = ev.target.value;
-        document.getElementById('container').style.fontSize = fontSize + 'px';
+    const container = document.getElementById("container");
+    const mediaFile = document.getElementById('mediaFile');
+    const subFile = document.getElementById('subFile');
+
+    // inputs (number or text)
+
+    const mediaOffset = document.getElementById('mediaOffset');
+    const subOffset = document.getElementById('subOffset');
+    const fontSize = document.getElementById('fontSize');
+    const mediaControlHeight = document.getElementById('mediaControlHeight');
+    const posterPosition = document.getElementById('posterPosition');
+
+    // checkboxs
+
+    const assOffIsNeg = document.getElementById('assOffIsNeg');
+    const mediaOffIsNeg = document.getElementById('mediaOffIsNeg');
+    const toggleBgKaraokeLine = document.getElementById('toggleBgKaraokeLine');
+
+    // buttons
+    const convertedSubDL = document.getElementById('convertedSubDL');
+
+    // dropdown selection
+    const animationMode = document.getElementById('animationMode');
+
+    mediaFile.addEventListener("change", pageObj.onMediaFileChange);
+    subFile.addEventListener("change", pageObj.onSubTitleChange);
+    mediaOffset.addEventListener('input', pageObj.onMediaOffsetChange);
+    subOffset.addEventListener('input', pageObj.onAssOffsetChange);
+    toggleBgKaraokeLine.addEventListener('change', pageObj.onToggleBgKaraokeLine);
+
+    fontSize.addEventListener('input', ev => {
+        const s = ev.target.value;
+        container.style.fontSize = s + 'px';
     });
-    document.getElementById('assOffIsNeg').addEventListener('change', ev => {
+    assOffIsNeg.addEventListener('change', ev => {
         if (ev.target.checked) {
-            document.getElementById('subOffset').value = -Math.abs(document.getElementById('subOffset').value);
+            subOffset.value = -Math.abs(subOffset.value);
         } else {
-            document.getElementById('subOffset').value = Math.abs(document.getElementById('subOffset').value);
+            subOffset.value = Math.abs(subOffset.value);
         }
-        document.getElementById('subOffset').dispatchEvent(new Event('input'));
+        subOffset.dispatchEvent(new Event('input'));
     });
-    document.getElementById('mediaOffIsNeg').addEventListener('change', ev => {
+    mediaOffIsNeg.addEventListener('change', ev => {
         if (ev.target.checked) {
-            document.getElementById('mediaOffset').value = -Math.abs(document.getElementById('mediaOffset').value);
+            mediaOffset.value = -Math.abs(mediaOffset.value);
         } else {
-            document.getElementById('mediaOffset').value = Math.abs(document.getElementById('mediaOffset').value);
+            mediaOffset.value = Math.abs(mediaOffset.value);
         }
-        document.getElementById('mediaOffset').dispatchEvent(new Event('input'));
+        mediaOffset.dispatchEvent(new Event('input'));
     });
-    document.getElementById('convertedSubDL').addEventListener('click', pageObj.onSubDLReq);
+    convertedSubDL.addEventListener('click', pageObj.onSubDLReq);
 
     // mediaControlHeight (input)
-    document.getElementById('mediaControlHeight').addEventListener('input', ev => {
-        document.getElementById('container').style.setProperty('--media-control-height', ev.target.value + 'rem');
+    mediaControlHeight.addEventListener('input', ev => {
+        container.style.setProperty('--media-control-height', ev.target.value + 'rem');
     });
+    animationMode.addEventListener('change', pageObj.onAnimationModeChange);
+    posterPosition.addEventListener('input', pageObj.onPosterPosChange);
 }
 
 export { initPage, setupEventListeners };

@@ -17,7 +17,10 @@ function finalizeSelectedLines(candidateMap, styleDB, selectedIds = []) {
         const styleData = styleDB.style?.find(s => s.Name === styleKey);
         const style = {
             PrimaryColour: styleData?.PrimaryColour ? parseAegisubColor(styleData.PrimaryColour) : null,
-            SecondaryColour: styleData?.SecondaryColour ? parseAegisubColor(styleData.SecondaryColour) : null
+            SecondaryColour: styleData?.SecondaryColour ? parseAegisubColor(styleData.SecondaryColour) : null,
+            OutlineColour: styleData?.OutlineColour ? parseAegisubColor(styleData.OutlineColour) : null,
+            Outline: styleData?.Outline ? Number(styleData.Outline) : 0,
+            BorderStyle: styleData?.BorderStyle ? Number(styleData.BorderStyle) : 1
         };
 
 

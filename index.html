@@ -14,6 +14,7 @@
 			href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
 		/>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
 		<script type="module" src="./src/main.js"></script>
 	</head>
 	<body class="bg-black">
@@ -51,6 +52,18 @@
 									>
 								</div>
 							</div>
+						</div>
+						<div class="col-md-6">
+							<label for="posterPosition" class="form-label"
+								>포스터 위치 (object-position)</label
+							>
+							<input
+								type="text"
+								id="posterPosition"
+								class="form-control"
+								value="50% 1em"
+								placeholder="예: 50% 1em"
+							/>
 						</div>
 					</div>
 				</details>
@@ -124,7 +137,6 @@
 						</div>
 						<div class="col-md-4">
 							<div class="form-check">
-								
 								<label
 									class="form-check-label"
 									for="toggleBgKaraokeLine"
@@ -138,6 +150,15 @@
 									checked
 								/>
 							</div>
+						</div>
+						<div class="col-md-4">
+							<label for="animationMode" class="form-label"
+								>애니메이션 모드</label
+							>
+							<select id="animationMode" class="form-select">
+								<option value="scale" selected>스케일</option>
+								<option value="opacity">선명도</option>
+							</select>
 						</div>
 					</div>
 				</details>

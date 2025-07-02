@@ -42,7 +42,9 @@ html {
 	object-fit: cover;
 	z-index: 39;
 }
-
+#mediaPlayer.mp3 {
+	object-fit: scale-down;
+}
 button {
 	margin: 0 10px;
 	padding: 0.5em 1em;
@@ -83,14 +85,12 @@ button {
 	font-family: Arial, sans-serif;
 	color: #ffffff;
 	white-space: pre;
-	transform: scale(0.5);
 	display: inline-block;
-	/* transition: all 0.3s ease; */
-	transition: none; /* 일반 상태에선 트랜지션 없음 */
-	will-change: transform, opacity; /* 브라우저에 최적화 힌트 제공 */
+	transition: none;
+	will-change: transform, opacity;
 }
 
-@keyframes karaoke-fade-in {
+@keyframes karaoke-fade_in-scale {
 	from {
 		opacity: 0;
 		transform: scale(0.5);
@@ -101,16 +101,29 @@ button {
 		color: var(--highlight-color);
 	}
 }
+@keyframes karaoke-fade_in-opacity {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+		color: var(--highlight-color);
+	}
+}
 
+.karaoke-char.scale-mode.animate {
+	animation-name: karaoke-fade_in-scale;
+}
+.karaoke-char.opacity-mode.animate {
+	animation-name: karaoke-fade_in-opacity;
+}
 .karaoke-char.animate {
 	opacity: 1;
-	transform: scale(1);
-	animation-fill-mode: forwards; /* 애니메이션 후 상태 유지 */
-	animation-name: karaoke-fade-in;
-	animation-duration: 300ms; /* 적절한 기간으로 설정 */
+	animation-fill-mode: forwards;
+	animation-duration: 300ms;
 	animation-timing-function: ease-out;
 }
-.karaoke-background-line{
+.karaoke-background-line {
 	position: absolute;
 	top: 0;
 	left: 0;
